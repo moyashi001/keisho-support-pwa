@@ -23,13 +23,16 @@ module.exports = async (req, res) => {
     res.status(200).json({ tweetData, conditions, reply });
   } catch (err) {
     console.error("[analyze] failed:", err.message, err.data || "");
-    res.status(500).json({
-      error: "ツイートの解析に失敗しました。URLやAPIキーを確認してください。",
-      debug: {
-        message: err.message,
-        code: err.code,
-        detail: err.data?.detail || err.data?.title || null,
-      },
-    });
+
+    if (err.code === 402) {
+      res.status(502).json({ error: "X APIの利用枠(クレジット)が不足しています。開発者ポータルでプラン・利用状況を確認してください。" });
+      return;
+    }
+    if (err.code === 429) {
+      res.status(502).json({ error: "X APIのレート制限に達しました。しばらく待ってから再度お試しください。" });
+      return;
+    }
+
+    res.status(500).json({ error: "ツイートの解析に失敗しました。URLやAPIキーを確認してください。" });
   }
 };
