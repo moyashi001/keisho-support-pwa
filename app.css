@@ -1,0 +1,156 @@
+:root {
+  --color-primary: #3B6FE0;
+  --color-bg: #f1f0ec;
+  --color-card: #ffffff;
+  --color-text: #222;
+  --color-muted: #777;
+  --color-danger: #d32f2f;
+  --color-ok: #2e7d32;
+  font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.landing {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  text-align: center;
+}
+.landing-icon { width: 96px; height: 96px; border-radius: 20px; margin-bottom: 16px; }
+.landing h1 { font-size: 22px; margin-bottom: 12px; }
+.landing p { font-size: 15px; line-height: 1.7; color: var(--color-text); }
+.landing-note { color: var(--color-muted); font-size: 13px; }
+.landing-cta {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 28px;
+  background: var(--color-primary);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 24px;
+  font-weight: bold;
+}
+
+.app-shell {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  padding: 16px 20px 8px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.app-header h1 { font-size: 18px; margin: 0; }
+.app-version { font-size: 11px; color: var(--color-muted); }
+
+.tab-bar {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  padding: 0 8px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px 4px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.tab-btn.is-active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: bold;
+}
+.tab-btn:disabled { opacity: 0.4; }
+
+.screens { flex: 1; padding: 20px; }
+.screen { display: none; }
+.screen.is-active { display: block; }
+.screen h2 { font-size: 16px; margin-top: 0; }
+
+.hint { font-size: 13px; color: var(--color-muted); line-height: 1.6; }
+.note-text { font-size: 13px; color: #b36b00; }
+.error-text { font-size: 13px; color: var(--color-danger); min-height: 18px; }
+
+.text-input, .text-area {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  background: var(--color-card);
+}
+.text-area { min-height: 120px; resize: vertical; }
+
+.primary-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+}
+.primary-btn:disabled { opacity: 0.5; }
+
+.secondary-btn {
+  display: inline-block;
+  padding: 10px 16px;
+  background: #eef2ff;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: 8px;
+  font-size: 13px;
+  text-decoration: none;
+  text-align: center;
+}
+
+.counter { text-align: right; font-size: 12px; color: var(--color-muted); }
+
+.loading { margin-top: 12px; color: var(--color-muted); font-size: 13px; }
+.hidden { display: none; }
+
+.condition-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+.condition-required { color: var(--color-danger); font-weight: bold; }
+.condition-optional { color: var(--color-muted); }
+.section-label { font-size: 12px; font-weight: bold; color: var(--color-muted); margin: 16px 0 4px; }
+.tweet-text-box { font-size: 13px; background: var(--color-card); border-radius: 8px; padding: 10px; white-space: pre-wrap; }
+
+.action-block {
+  background: var(--color-card);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.action-label { display: block; font-size: 14px; margin-bottom: 10px; }
+.action-buttons { display: flex; gap: 10px; align-items: center; }
+.done-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-size: 13px;
+}
+.done-btn.is-done { background: #e8f5e9; border-color: var(--color-ok); color: var(--color-ok); }

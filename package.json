@@ -1,0 +1,18 @@
+{
+  "name": "keisho-support-pwa",
+  "version": "1.0.0",
+  "description": "懸賞ツイートの応募条件解析・リプライ下書き生成PWA",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "gen-icons": "node scripts/gen-icons.js",
+    "dev": "node scripts/dev-server.js"
+  },
+  "dependencies": {
+    "twitter-api-v2": "^1.29.0"
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2",
+    "pngjs": "^7.0.0"
+  }
+}

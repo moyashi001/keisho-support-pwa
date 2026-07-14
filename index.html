@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>懸賞支援アプリ - 懸賞ツイートの応募条件を解析</title>
+<meta name="description" content="懸賞ツイートのURLを入力するだけで、応募条件（フォロー・リポスト・ハッシュタグ・リプライ）を自動抽出し、リプライ文の下書きを作成する無料PWA。">
+<meta name="theme-color" content="#3B6FE0">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<main class="landing">
+  <img class="landing-icon" src="./icons/icon-192.png" alt="懸賞支援アプリのアイコン">
+  <h1>懸賞支援アプリ</h1>
+  <p>懸賞ツイートのURLを入力すると、応募条件（フォロー・リポスト・ハッシュタグ・リプライ）を自動で読み取り、リプライ文の下書きまで作成します。</p>
+  <p class="landing-note">
+    実際の「フォロー」「リポスト」「リプライ投稿」はX公式の確認画面を開いてご自身で実行していただく仕様です。自動投稿は行いません。
+  </p>
+  <a class="landing-cta" href="./app.html">アプリを開く</a>
+</main>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js');
+    });
+  }
+</script>
+</body>
+</html>

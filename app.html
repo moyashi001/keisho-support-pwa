@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>懸賞支援アプリ</title>
+<meta name="theme-color" content="#3B6FE0">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
+<link rel="stylesheet" href="./app.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="app-header">
+    <h1>懸賞支援アプリ</h1>
+    <span id="app-version" class="app-version">v1.0.0</span>
+  </header>
+
+  <nav class="tab-bar" id="tab-bar">
+    <button class="tab-btn is-active" data-tab="analyze">解析</button>
+    <button class="tab-btn" data-tab="conditions" disabled>条件</button>
+    <button class="tab-btn" data-tab="reply" disabled>リプライ</button>
+    <button class="tab-btn" data-tab="action" disabled>応募</button>
+  </nav>
+
+  <main class="screens">
+
+    <!-- 画面1: URL入力 -->
+    <section class="screen is-active" id="screen-analyze">
+      <h2>ツイートURLを解析</h2>
+      <p class="hint">懸賞ツイートのURLを貼り付けてください。</p>
+      <input id="tweet-url-input" class="text-input" type="url" placeholder="https://x.com/xxxx/status/1234567890" autocapitalize="off" autocorrect="off">
+      <button id="analyze-btn" class="primary-btn">解析する</button>
+      <p id="analyze-error" class="error-text"></p>
+      <div id="analyze-loading" class="loading hidden">解析中...</div>
+    </section>
+
+    <!-- 画面2: 応募条件一覧 -->
+    <section class="screen" id="screen-conditions">
+      <h2>応募条件</h2>
+      <div id="conditions-content"></div>
+      <button id="to-reply-btn" class="primary-btn">次へ（リプライ文を確認）</button>
+    </section>
+
+    <!-- 画面3: リプライ文編集 -->
+    <section class="screen" id="screen-reply">
+      <h2>リプライ文（編集できます）</h2>
+      <textarea id="reply-textarea" class="text-area" maxlength="130"></textarea>
+      <p class="counter"><span id="reply-counter">130</span> 文字残り</p>
+      <p id="reply-note" class="note-text"></p>
+      <button id="to-action-btn" class="primary-btn">この内容で次へ</button>
+    </section>
+
+    <!-- 画面4: 応募操作 -->
+    <section class="screen" id="screen-action">
+      <h2>応募する</h2>
+      <p class="hint">各ボタンでXの確認画面が開きます。内容を確認し、X側でご自身の操作として実行してください。実行後は「完了にする」を押して記録してください。</p>
+
+      <div class="action-block" data-action="follow">
+        <span class="action-label">①フォローする</span>
+        <div class="action-buttons">
+          <a class="secondary-btn intent-link" target="_blank" rel="noopener">Xで開く</a>
+          <button class="done-btn" data-action="follow">完了にする</button>
+        </div>
+      </div>
+
+      <div class="action-block" data-action="repost">
+        <span class="action-label">②リポストする</span>
+        <div class="action-buttons">
+          <a class="secondary-btn intent-link" target="_blank" rel="noopener">Xで開く</a>
+          <button class="done-btn" data-action="repost">完了にする</button>
+        </div>
+      </div>
+
+      <div class="action-block" data-action="reply">
+        <span class="action-label">③リプライを投稿する</span>
+        <div class="action-buttons">
+          <a class="secondary-btn intent-link" target="_blank" rel="noopener">Xで開く</a>
+          <button class="done-btn" data-action="reply">完了にする</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="./app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./service-worker.js');
+    });
+  }
+</script>
+</body>
+</html>
