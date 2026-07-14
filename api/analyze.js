@@ -22,7 +22,14 @@ module.exports = async (req, res) => {
 
     res.status(200).json({ tweetData, conditions, reply });
   } catch (err) {
-    console.error("[analyze] failed:", err.message);
-    res.status(500).json({ error: "ツイートの解析に失敗しました。URLやAPIキーを確認してください。" });
+    console.error("[analyze] failed:", err.message, err.data || "");
+    res.status(500).json({
+      error: "ツイートの解析に失敗しました。URLやAPIキーを確認してください。",
+      debug: {
+        message: err.message,
+        code: err.code,
+        detail: err.data?.detail || err.data?.title || null,
+      },
+    });
   }
 };
