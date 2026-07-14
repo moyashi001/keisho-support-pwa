@@ -1,8 +1,7 @@
 // 最低限のオフラインキャッシュを提供するサービスワーカー
 // 常に最新のファイルを優先し、オフライン時のみキャッシュにフォールバックする(network-first)
-// /api/ 配下はキャッシュ対象外 (常にネットワークから取得する)
 
-const CACHE_NAME = 'keisho-support-cache-v1';
+const CACHE_NAME = 'keisho-support-cache-v2';
 const APP_SHELL = [
   './',
   './index.html',
@@ -36,7 +35,6 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  if (event.request.url.includes('/api/')) return;
 
   event.respondWith(
     fetch(event.request)

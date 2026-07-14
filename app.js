@@ -24,67 +24,152 @@
     });
   });
 
+  function escapeHtml(str) {
+    return String(str || "").replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  // ---- ツイートURLからID抽出 (Intent URL生成用。API通信は行わない) ----
+  function extractTweetId(url) {
+    if (!url) return null;
+    var match = String(url).match(/status\/(\d+)/);
+    return match ? match[1] : null;
+  }
+
+  // ---- 本文からハッシュタグを抽出 ----
+  function extractHashtags(text) {
+    var matches = String(text || "").match(/#([^\s#。、！？!?,.]+)/g) || [];
+    return matches.map(function (m) { return m.slice(1); });
+  }
+
+  // ---- 応募条件抽出 (日本語の懸賞ツイートでよくある表現をキーワード判定) ----
+  function extractConditions(text, hashtags, companyName) {
+    var followRequired = /フォロー|フォロ\s*&|フォロバ/.test(text);
+    var repostRequired = /RT|リポスト|リツイート/i.test(text);
+    var hashtagRequired = hashtags.length > 0 && /ハッシュタグ|タグをつけて|を付けて|をつけて/.test(text);
+    var replyRequired = /リプライ|コメント|返信/.test(text);
+
+    var replyContentSpec = null;
+    var freeCommentMatch = text.match(/(感想|コメント|一言|意気込み)[をと][^\n。!!]{0,20}/);
+    if (freeCommentMatch) replyContentSpec = freeCommentMatch[0];
+
+    // 商品名は「」『』(固有名詞に使われやすい)を優先し、無ければ【】、それも無ければハッシュタグを使う
+    var quotedMatch = text.match(/[「『]([^」』]{2,20})[」』]/) || text.match(/【([^】]{2,20})】/);
+    var productName = quotedMatch ? quotedMatch[1] : (hashtags[0] || null);
+
+    return {
+      followRequired: followRequired,
+      repostRequired: repostRequired,
+      hashtagRequired: hashtagRequired,
+      replyRequired: replyRequired,
+      replyContentSpec: replyContentSpec,
+      hashtags: hashtags,
+      companyName: companyName || null,
+      productName: productName,
+    };
+  }
+
+  // ---- リプライ文生成 (テンプレートの組み合わせをその都度変えて自然なバリエーションにする) ----
+  var OPENERS = [
+    "{product}、すごく気になっていました！",
+    "{product}、写真を見て思わず目を引かれました！",
+    "{product}気になってました、素敵ですね！",
+    "{product}、パッケージからも魅力が伝わってきます！",
+  ];
+  var PRAISES = [
+    "{company}さんの新しい取り組み、いつも楽しみにしています。",
+    "{company}さんらしい丁寧な作りが伝わってきます。",
+    "{company}さんの商品はいつも生活の中で活躍しています。",
+    "{company}さんのアイデア、毎回驚かされます。",
+  ];
+  var CLOSERS = [
+    "当選を楽しみにしています！",
+    "使ってみるのが今から楽しみです！",
+    "ぜひ試してみたいです！",
+    "当たったら大切に使いたいです！",
+  ];
+  var MAX_LENGTH = 130;
+
+  function pickRandom(list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function fillTemplate(template, product, company) {
+    return template.replace("{product}", product || "こちらの商品").replace("{company}", company || "");
+  }
+
+  function truncateToLimit(text, limit) {
+    if (text.length <= limit) return text;
+    return text.slice(0, limit - 1) + "…";
+  }
+
+  function generateReply(conditions) {
+    var opener = fillTemplate(pickRandom(OPENERS), conditions.productName, conditions.companyName);
+    var praise = conditions.companyName ? fillTemplate(pickRandom(PRAISES), conditions.productName, conditions.companyName) : "";
+    var closer = pickRandom(CLOSERS);
+    var tagText = conditions.hashtags.length > 0 ? conditions.hashtags.map(function (h) { return "#" + h; }).join(" ") : "";
+
+    var candidate = [opener, praise, closer, tagText].filter(Boolean).join(" ");
+
+    if (candidate.length > MAX_LENGTH) {
+      var bodyLimit = MAX_LENGTH - (tagText ? tagText.length + 1 : 0);
+      var body = [opener, praise, closer].filter(Boolean).join(" ");
+      candidate = [truncateToLimit(body, bodyLimit), tagText].filter(Boolean).join(" ");
+    }
+
+    return {
+      text: candidate,
+      note: conditions.replyContentSpec
+        ? "このツイートは「" + conditions.replyContentSpec + "」という指定があります。内容が合っているか投稿前に確認してください。"
+        : null,
+    };
+  }
+
   // ---- 画面1: 解析 ----
+  var tweetTextInput = document.getElementById("tweet-text-input");
+  var companyNameInput = document.getElementById("company-name-input");
+  var accountNameInput = document.getElementById("account-name-input");
   var urlInput = document.getElementById("tweet-url-input");
   var analyzeBtn = document.getElementById("analyze-btn");
   var analyzeError = document.getElementById("analyze-error");
-  var analyzeLoading = document.getElementById("analyze-loading");
 
   analyzeBtn.addEventListener("click", function () {
-    var url = urlInput.value.trim();
+    var text = tweetTextInput.value.trim();
     analyzeError.textContent = "";
-    if (!url) {
-      analyzeError.textContent = "ツイートURLを入力してください。";
+    if (!text) {
+      analyzeError.textContent = "ツイート本文を貼り付けてください。";
       return;
     }
 
-    analyzeBtn.disabled = true;
-    analyzeLoading.classList.remove("hidden");
+    var hashtags = extractHashtags(text);
+    var conditions = extractConditions(text, hashtags, companyNameInput.value.trim());
+    var reply = generateReply(conditions);
 
-    fetch("/api/analyze", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: url }),
-    })
-      .then(function (res) {
-        return res.json().then(function (body) {
-          if (!res.ok) throw new Error(body.error || "解析に失敗しました。");
-          return body;
-        });
-      })
-      .then(function (result) {
-        current = {
-          tweetUrl: url,
-          tweetId: result.tweetData.tweetId,
-          tweetText: result.tweetData.text,
-          companyName: result.conditions.companyName,
-          authorUsername: result.tweetData.author ? result.tweetData.author.username : null,
-          productName: result.conditions.productName,
-          hashtags: result.conditions.hashtags,
-          followRequired: result.conditions.followRequired,
-          repostRequired: result.conditions.repostRequired,
-          hashtagRequired: result.conditions.hashtagRequired,
-          replyRequired: result.conditions.replyRequired,
-          replyContentSpec: result.conditions.replyContentSpec,
-          replyText: result.reply.text,
-          replyNote: result.reply.note,
-          followDone: false,
-          repostDone: false,
-          replyDone: false,
-        };
-        renderConditions();
-        enableTab("conditions");
-        enableTab("reply");
-        enableTab("action");
-        showScreen("conditions");
-      })
-      .catch(function (err) {
-        analyzeError.textContent = err.message;
-      })
-      .finally(function () {
-        analyzeBtn.disabled = false;
-        analyzeLoading.classList.add("hidden");
-      });
+    current = {
+      tweetText: text,
+      tweetId: extractTweetId(urlInput.value.trim()),
+      authorUsername: accountNameInput.value.trim() || null,
+      companyName: conditions.companyName,
+      productName: conditions.productName,
+      hashtags: conditions.hashtags,
+      followRequired: conditions.followRequired,
+      repostRequired: conditions.repostRequired,
+      hashtagRequired: conditions.hashtagRequired,
+      replyRequired: conditions.replyRequired,
+      replyContentSpec: conditions.replyContentSpec,
+      replyText: reply.text,
+      replyNote: reply.note,
+      followDone: false,
+      repostDone: false,
+      replyDone: false,
+    };
+
+    renderConditions();
+    enableTab("conditions");
+    enableTab("reply");
+    enableTab("action");
+    showScreen("conditions");
   });
 
   // ---- 画面2: 条件表示 ----
@@ -92,12 +177,6 @@
     var cls = required ? "condition-required" : "condition-optional";
     var text = required ? "必須" : "不要";
     return '<div class="condition-row"><span>' + label + "</span><span class=\"" + cls + "\">" + text + "</span></div>";
-  }
-
-  function escapeHtml(str) {
-    return String(str || "").replace(/[&<>"']/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
-    });
   }
 
   function renderConditions() {
@@ -184,6 +263,10 @@
       if (intents[action]) {
         link.href = intents[action];
         link.classList.remove("hidden");
+        link.classList.remove("is-disabled");
+      } else {
+        link.removeAttribute("href");
+        link.classList.add("is-disabled");
       }
       var isDone = current[action + "Done"];
       doneBtn.classList.toggle("is-done", !!isDone);

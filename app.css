@@ -93,8 +93,11 @@ body {
   padding: 12px;
   font-size: 14px;
   background: var(--color-card);
+  margin-bottom: 12px;
 }
 .text-area { min-height: 120px; resize: vertical; }
+
+.field-label { display: block; font-size: 12px; color: var(--color-muted); margin-bottom: 4px; }
 
 .primary-btn {
   width: 100%;
@@ -119,6 +122,10 @@ body {
   font-size: 13px;
   text-decoration: none;
   text-align: center;
+}
+.secondary-btn.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
 }
 
 .counter { text-align: right; font-size: 12px; color: var(--color-muted); }

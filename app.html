@@ -13,7 +13,7 @@
 <div class="app-shell">
   <header class="app-header">
     <h1>懸賞支援アプリ</h1>
-    <span id="app-version" class="app-version">v1.0.0</span>
+    <span id="app-version" class="app-version">v2.0.0</span>
   </header>
 
   <nav class="tab-bar" id="tab-bar">
@@ -25,14 +25,23 @@
 
   <main class="screens">
 
-    <!-- 画面1: URL入力 -->
+    <!-- 画面1: ツイート本文を貼り付け -->
     <section class="screen is-active" id="screen-analyze">
-      <h2>ツイートURLを解析</h2>
-      <p class="hint">懸賞ツイートのURLを貼り付けてください。</p>
+      <h2>ツイート本文を解析</h2>
+      <p class="hint">懸賞ツイートの本文をコピーして貼り付けてください（X APIは使用しません）。</p>
+      <textarea id="tweet-text-input" class="text-area" placeholder="【新商品】〇〇発売記念キャンペーン！フォロー&amp;RTで抽選5名様にプレゼント。#〇〇 を付けてリプライで応募完了！"></textarea>
+
+      <label class="field-label" for="company-name-input">企業名（リプライ文に使用・任意）</label>
+      <input id="company-name-input" class="text-input" type="text" placeholder="〇〇製菓株式会社">
+
+      <label class="field-label" for="account-name-input">企業のXアカウント名（@なし・フォローボタン用・任意）</label>
+      <input id="account-name-input" class="text-input" type="text" placeholder="example_account" autocapitalize="off" autocorrect="off">
+
+      <label class="field-label" for="tweet-url-input">元ツイートのURL（リポスト/リプライボタン用・任意）</label>
       <input id="tweet-url-input" class="text-input" type="url" placeholder="https://x.com/xxxx/status/1234567890" autocapitalize="off" autocorrect="off">
+
       <button id="analyze-btn" class="primary-btn">解析する</button>
       <p id="analyze-error" class="error-text"></p>
-      <div id="analyze-loading" class="loading hidden">解析中...</div>
     </section>
 
     <!-- 画面2: 応募条件一覧 -->
